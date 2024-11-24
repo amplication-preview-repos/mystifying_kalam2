@@ -1,0 +1,63 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("DB_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model User {
+  createdAt    DateTime      @default(now())
+  email        String?       @unique
+  firstName    String?
+  id           String        @id @default(cuid())
+  lastName     String?
+  password     String
+  roles        Json
+  transactions Transaction[]
+  updatedAt    DateTime      @updatedAt
+  username     String        @unique
+}
+
+model BaseBot {
+  aiModel     AiModel? @relation(fields: [aiModelId], references: [id])
+  aiModelId   String?
+  bots        Bot[]
+  createdAt   DateTime @default(now())
+  description String?
+  id          String   @id @default(cuid())
+  name        String?
+  updatedAt   DateTime @updatedAt
+}
+
+model Bot {
+  baseBot        BaseBot? @relation(fields: [baseBotId], references: [id])
+  baseBotId      String?
+  createdAt      DateTime @default(now())
+  description    String?
+  id             String   @id @default(cuid())
+  name           String?
+  tokensRequired Int?
+  updatedAt      DateTime @updatedAt
+}
+
+model AiModel {
+  apiEndpoint  String?
+  baseBots     BaseBot[]
+  costPerToken Float?
+  createdAt    DateTime  @default(now())
+  id           String    @id @default(cuid())
+  name         String?
+  updatedAt    DateTime  @updatedAt
+}
+
+model Transaction {
+  createdAt  DateTime  @default(now())
+  id         String    @id @default(cuid())
+  timestamp  DateTime?
+  tokensUsed Int?
+  updatedAt  DateTime  @updatedAt
+  user       User?     @relation(fields: [userId], references: [id])
+  userId     String?
+}
